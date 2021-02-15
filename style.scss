@@ -1,0 +1,57 @@
+.ud-container {
+   display: flex;
+   max-width: -webkit-fill-available;
+
+   &.text {
+      flex-direction: column;
+   }
+   
+   &.icons {
+      flex-direction: row;
+   }
+   
+   svg {
+      fill: #ddd;
+      margin: 5px;
+      width: 20px;
+      height: 20px;
+   }
+
+   .ud-scrollableText {
+      color: var(--text-normal);
+      white-space: nowrap;
+      position: relative;
+      font-size: 14px;
+      width: -webkit-fill-available;
+      text-align: center;
+   }
+   
+}
+
+.ud-badges {
+   flex-wrap: wrap;
+   margin-bottom: 8px;
+
+   div {
+      display: inline-flex;
+      margin: 5px;
+   }
+}
+
+.ud-badges img {
+   width: 30px;
+   height: 30px;
+}
+.ud-settingsBadge {
+   width: 50px;
+   height: 50px;
+   cursor: pointer;
+}
+
+.ud-settingsBadge-container {
+   display: inline-flex;
+   
+   .ud-settingsBadge.disabled {
+      filter: grayscale(1);
+   }
+}
