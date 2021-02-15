@@ -52,6 +52,6 @@
    display: inline-flex;
    
    .ud-settingsBadge.disabled {
-      filter: grayscale(1);
+      opacity: 0.4;
    }
 }
