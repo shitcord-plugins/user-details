@@ -2,6 +2,7 @@ import { Tooltip } from '@vizality/components';
 import Cake from '../components/icons/cake';
 import TextScroller from '../components/textscroller';
 import ApiModule from './api';
+import React from 'react';
 
 export default class CreatedAt extends ApiModule {
    task(userId) {
