@@ -4,11 +4,10 @@ import { joinClassNames } from '@vizality/util/dom';
 import { findInReactTree, forceUpdateElement } from '@vizality/util/react';
 import { getModule } from '@vizality/webpack';
 import React from 'react';
-import UserBadges from './apis/badges';
+import UserConnections from './apis/connections';
 import CreatedAt from './apis/creationDate';
 import JoinedAt from './apis/joinedDate';
 import LastMessage from './apis/lastMessage';
-import TextScroller from './components/textscroller';
 
 const getClass = (props = [], items = props, exclude = [], selector = false) => {
 	const module = getModule(m => m && props.every(prop => m[prop] !== undefined) && exclude.every(e => m[e] == undefined));
@@ -27,7 +26,7 @@ export default class UserDetails extends Plugin {
       this.createdApi = new CreatedAt(this);
       this.joinedApi = new JoinedAt(this);
       this.lastMessageApi = new LastMessage(this);
-      this.badgesApi = new UserBadges(this);
+      this.connectionsApi = new UserConnections(this);
       
       // Patches
       this.patchUserPopout();
@@ -68,10 +67,10 @@ export default class UserDetails extends Plugin {
       patch('ud-user-popout-body', UserPopout.prototype, 'renderBody', function (_, res) {
          const tree = findInReactTree(res, e => e && e.className && Array.isArray(e.children));
          if (!Array.isArray(tree?.children)) return res;
-         const Badges = plugin.badgesApi.task(this.props.user.id);
+         const Connections = plugin.connectionsApi.task(this.props.user.id);
 
          tree.children.unshift(
-            <Badges titleClassName={titleClassName} />
+            <Connections titleClassName={titleClassName} />
          );
          return res;
       });

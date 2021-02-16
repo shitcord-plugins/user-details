@@ -1,6 +1,6 @@
 import { Tooltip } from '@vizality/components';
 import React from 'react';
-import defaultbadges from '../data/defaultbadges';
+import defaultConnections from '../data/defaultConnections';
 
 const formatString = (string, options) => {
    for (const option in options) string = string.replace(new RegExp(`{{${option}}}`, 'g'), options[option]);
@@ -9,7 +9,7 @@ const formatString = (string, options) => {
 
 export default function Badge({name, id, type}) {
    const onClick = () => {
-      const link = defaultbadges[type].link;
+      const link = defaultConnections[type].link;
       if (!link) return;
       open(formatString(link, {
          userId: id,
@@ -18,6 +18,6 @@ export default function Badge({name, id, type}) {
    };
 
    return <Tooltip text={name}>
-      <img src={defaultbadges[type].icon} onClick={onClick} />
+      <img src={defaultConnections[type].icon} onClick={onClick} />
    </Tooltip>;
 }
