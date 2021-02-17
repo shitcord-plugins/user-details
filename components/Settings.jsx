@@ -1,4 +1,4 @@
-import { Category, RadioGroup, TextInput } from '@vizality/components/settings';
+import { Category, RadioGroup, SwitchItem, TextInput } from '@vizality/components/settings';
 import { joinClassNames } from '@vizality/util/dom';
 import React, { useState } from 'react';
 import defaultconnections from '../data/defaultConnections';
@@ -11,13 +11,19 @@ const options = [
 ];
 
 const replacements = {
-   "$daysago": 'Replaces with how much days it\'s ago.',
+   "$timelabel": 'Replaces the current time label. eg AM or PM.',
    "$day": 'Replaces the current day.',
+   "$daysago": 'Replaces with how much days it\'s ago.',
+   "$dayname": 'Replaces the shorted dayname.',
+   "$weeksago": 'Replaces how much weeks it\'s ago.',
    "$month": 'Replaces the month.',
+   "$monthname": 'Replaces the shorted monthname.',
+   "$monthsago": 'Replaces with how much months it\'s ago.',
    "$year": 'Replaces the year.',
+   "$yearsago": 'Replaces how much years it\'s ago.',
    "$hour": 'Replaces the hour(s)',
    "$minute": 'Replaces the minute(s)',
-   "$second": 'Replaces the second(s)'
+   "$second": 'Replaces the second(s)',
 };
 
 const formats = {
@@ -46,7 +52,7 @@ function ReplacementItem({children, name}) {
    </Flex>;
 }
 
-export default ({getSetting, updateSetting}) => {
+export default ({getSetting, updateSetting, toggleSetting}) => {
    const forceUpdate = useForceUpdate();
    const [isDatesOpened, setDatesOpened] = useState(false);
    const [isFormatOpened, setFormatOpened] = useState(false);
@@ -71,6 +77,7 @@ export default ({getSetting, updateSetting}) => {
          </div>
       </Category>
       <Divider />
+      <SwitchItem note="This enables 12hour format on all dates." value={getSetting('12hour', false)} onChange={() => {toggleSetting('12hour');}}>12-hour</SwitchItem>
       <RadioGroup
          note={null}
          options={options}

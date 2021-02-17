@@ -57,12 +57,35 @@ export default class ApiModule {
       return zeroable < 9 ? '0' + zeroable : zeroable;
    }
 
+   monthsAgo(date1, date2) {
+      let months;
+      months = (date2.getFullYear() - date1.getFullYear()) * 12;
+      months -= date1.getMonth();
+      months += date2.getMonth();
+      return months <= 0 ? 0 : months;
+  }
+
+  daysAgo(date1, date2) {
+      return Math.floor((date1 - date2) / (1000 * 60 * 60 * 24));
+  }
+
+  yearsAgo(date1, date2) {
+      return parseInt(date1.toLocaleString('default', {year: '2-digit'}) - parseInt(date2.toLocaleString('default', {year: '2-digit'})));
+  }
+
    parseTime(format, date) {
       if (typeof date !== 'object') date = new Date(date);
+      const today = new Date(), daysago = this.daysAgo(today, date), hour12 = this.plugin.settings.get('12hour', false);
       return format
-         .replace(/\$daysago/g, Math.round((new Date() - date) / (1000 * 60 * 60 * 24)))
-         .replace(/\$day/g, date.toLocaleDateString(document.documentElement.lang, {day: '2-digit'}))
-         .replace(/\$month/g, date.toLocaleDateString(document.documentElement.lang, {month: '2-digit'}))
+         .replace(/\$timelabel/g, date.getHours() >= 12 ? 'PM' : 'AM')
+         .replace(/\$daysago/g, daysago)
+         .replace(/\$dayname/g, date.toLocaleDateString('default', {weekday: 'short', hour12}))
+         .replace(/\$day/g, date.toLocaleDateString('default', {day: '2-digit', hour12}))
+         .replace(/\$monthname/g, date.toLocaleDateString('default', {month: 'short', hour12}))
+         .replace(/\$monthsago/g, this.monthsAgo(today, date))
+         .replace(/\$month/g, date.toLocaleDateString('default', {month: '2-digit', hour12}))
+         .replace(/\$weeksago/g, Math.floor(daysago / 7))
+         .replace(/\$yearsago/g, Math.floor(this.yearsAgo(today, date)))
          .replace(/\$year/g, date.getFullYear())
          .replace(/\$hour/g, this.parseZeroPadding(date.getHours()))
          .replace(/\$minute/g, this.parseZeroPadding(date.getMinutes()))

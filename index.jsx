@@ -1,8 +1,9 @@
 import { Plugin } from '@vizality/entities';
+import { get } from '@vizality/http';
 import { patch, unpatch } from '@vizality/patcher';
 import { joinClassNames } from '@vizality/util/dom';
-import { findInReactTree, forceUpdateElement } from '@vizality/util/react';
-import { getModule } from '@vizality/webpack';
+import { findInReactTree, forceUpdateElement, getOwnerInstance, waitForElement } from '@vizality/util/react';
+import { constants, getModule, getModuleByDisplayName } from '@vizality/webpack';
 import React from 'react';
 import UserConnections from './apis/connections';
 import CreatedAt from './apis/creationDate';
@@ -30,6 +31,7 @@ export default class UserDetails extends Plugin {
       
       // Patches
       this.patchUserPopout();
+      this.patchUserProfile();
    }
 
    getUserPopout() {
@@ -44,6 +46,7 @@ export default class UserDetails extends Plugin {
 	}
 
    async patchUserPopout() {
+      this.patches.push(() => unpatch('ud-get-userpopout'));
       const UserPopout = await this.getUserPopout();
 
       const plugin = this;
@@ -81,6 +84,31 @@ export default class UserDetails extends Plugin {
       );
       
       forceUpdateElement(getClass(["userPopout"], ["userPopout"], [], true));
+   }
+
+   async patchUserProfile() {
+      const AnalyticsContext = getModuleByDisplayName('AnalyticsContext');
+      const plugin = this;
+      patch('ud-userprofile', AnalyticsContext.prototype, 'render', function (_, res) {
+         if (this.props.section !== constants.AnalyticsSections.PROFILE_MODAL) return res;
+         const tree = findInReactTree(this.props.children, m => m?.className?.indexOf('headerInfo') > -1);
+         const {user} = findInReactTree(this.props.children, m => m?.user) || {};
+         if (!Array.isArray(tree?.children)) return res;
+         if (!user) return res;
+         const WrappedJoinedAt = plugin.joinedApi.task(user.id);
+         const WrappedCreatedAt = plugin.createdApi.task(user.id);
+         const WrappedLastMessage = plugin.lastMessageApi.task(user);
+         
+         tree.children.push(<div className={joinClassNames('ud-container userProfile', plugin.settings.get('useIcons', true) ? 'icons' : 'text')}>
+            <WrappedCreatedAt />
+            <WrappedJoinedAt />
+            <WrappedLastMessage />
+         </div>);
+
+         return res;
+      });
+
+      this.patches.push(() => unpatch('ud-userprofile'));
    }
 
    stop() {

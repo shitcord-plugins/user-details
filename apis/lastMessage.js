@@ -17,7 +17,7 @@ export default class LastMessage extends ApiModule {
          const [lastMessage, setLastMessage] = useState(null);
          
          useEffect(() => {
-            if (user.bot || user.discriminator === "0000") return setLastMessage('Last Message: --- --- ---');
+            if (user.bot && user.discriminator === "0000") return setLastMessage('Last Message: --- --- ---');
             const roomId = SelectedGuildStore.getGuildId() || SelectedChannelStore.getChannelId();
             const isGuild = !!SelectedGuildStore.getGuildId();
 
