@@ -70,7 +70,7 @@ export default class ApiModule {
   }
 
   yearsAgo(date1, date2) {
-      return parseInt(date1.toLocaleString('default', {year: '2-digit'}) - parseInt(date2.toLocaleString('default', {year: '2-digit'})));
+      return this.monthsAgo(date2, date1) / 12;
   }
 
    parseTime(format, date) {
