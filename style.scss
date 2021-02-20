@@ -1,3 +1,5 @@
+// Note: i hate frontend so don't blame me if the code is awful.
+
 .ud-container {
    display: flex;
    max-width: -webkit-fill-available;
@@ -8,6 +10,10 @@
    
    &.icons {
       flex-direction: row;
+
+      .loading {
+         animation: blink infinite 2s ease-in-out;
+      }
    }
    
    svg {
@@ -32,13 +38,26 @@
    
 }
 
-.ud-connections {
-   flex-wrap: wrap;
-   margin-bottom: 8px;
-
-   div {
+.ud-connectionsBody {
+   div:not(.ud-connections, .ud-container) {
       display: inline-flex;
       margin: 5px;
+   }
+   
+   .loading {
+      fill: var(--interactive-muted);
+      animation: blink infinite 2s;
+      width: 30px;
+      height: 30px;
+      margin: 5px;
+      margin-top: 0;
+      margin-left: 0;
+   }
+
+   .ud-connections {
+      display: flex;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
    }
 }
 
@@ -57,5 +76,17 @@
    
    .ud-settingsBadge.disabled {
       opacity: 0.4;
+   }
+}
+
+@keyframes blink {
+   0% {
+      opacity: .6;
+   }
+   50% {
+      opacity: .3;
+   }
+   100% {
+      opacity: .6;
    }
 }

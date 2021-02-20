@@ -1,9 +1,10 @@
 import ApiModule from './api';
 import React, { useState, useEffect } from 'react';
-import { constants, getModule } from '@vizality/webpack';
+import { constants, getModule, getModuleByDisplayName } from '@vizality/webpack';
 import TextScroller from '../components/textscroller';
 import { Tooltip } from '@vizality/components';
 import Calendar from '../components/icons/calendar';
+import Cube from '../components/blankslates/cube';
 
 const SelectedGuildStore = getModule('getGuildId');
 const SelectedChannelStore = getModule('getChannelId', '_dispatchToken');
@@ -39,7 +40,7 @@ export default class JoinedAt extends ApiModule {
             ? this.plugin.settings.get('useIcons', true) 
                ? <Tooltip text={joined}><Calendar/></Tooltip>
                : <TextScroller>{joined}</TextScroller> 
-            : null;
+            : <Tooltip text="Loading JoinedAt..."><Cube className="loading" /></Tooltip>;
       });
    }
 }

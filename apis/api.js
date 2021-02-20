@@ -14,6 +14,7 @@ export default class ApiModule {
    }
 
    get api() {return '';}
+   get settings() {return this.plugin?.settings;}
 
    get(options, guildId, userId) {
       let cancel = () => {};
