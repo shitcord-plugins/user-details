@@ -8,6 +8,8 @@ import ApiModule from './api';
 import Circle from '../components/blankslates/circle';
 
 export default class Userconnections extends ApiModule {
+   get api() {return this.constructor.name;}
+
    get shownConnections() {
       const connections = this.settings.get('shownConnections', defaultconnections);
 
