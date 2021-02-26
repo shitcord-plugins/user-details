@@ -7,7 +7,6 @@ import Calendar from '../components/icons/calendar';
 import Cube from '../components/blankslates/cube';
 
 const SelectedGuildStore = getModule('getGuildId');
-const SelectedChannelStore = getModule('getChannelId', '_dispatchToken');
 
 export default class JoinedAt extends ApiModule {
    get api() {return this.constructor.name;}
@@ -19,11 +18,7 @@ export default class JoinedAt extends ApiModule {
          useEffect(() => {
             const guildId = SelectedGuildStore.getGuildId();
             const settingsFormat = this.plugin.settings.get('joined_format', 'Joined At: $hour:$minute:$second, $day.$month.$year $daysago days');
-            if(!guildId) {
-               const ChannelId = SelectedChannelStore.getChannelId();
-               if (!ChannelId) return setJoined('Joined At: --- --- ---');
-               setJoined(this.parseTime(settingsFormat, this.extractDate(ChannelId)));
-            }
+            if(!guildId) return setJoined('Joined At: --- --- ---');
 
             const promise = this.get({
                url: constants.Endpoints.GUILD_MEMBER(guildId, userId)
