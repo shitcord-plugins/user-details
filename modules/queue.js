@@ -7,11 +7,12 @@ export default class WaitQueue {
       if (this.autostart && functions.length) this.next(); 
    }
 
-   add(callback, onCancel) {
+   add(callback, onCancel, caller) {
       return new Promise(resolve => {
          const func = async () => {
             resolve(await callback());
          }
+         func.__caller = caller;
          this.functions.push(func);
          onCancel(() => {
             const index = this.functions.indexOf(func);
@@ -44,7 +45,7 @@ export default class WaitQueue {
       try {
          await callback();
       } catch (error) {
-         console.error('Could not run callback: ', callback, '\n',  error);
+         console.error(`Could not run callback for "${callback.__caller}":`, '\n',  error);
       }
    }
 }

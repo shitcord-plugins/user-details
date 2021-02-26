@@ -15,6 +15,7 @@ export default class ApiModule {
 
    get api() {return '';}
    get settings() {return this.plugin?.settings;}
+   get cache() {return cache[this.api];}
 
    get(options, guildId, userId) {
       let cancel = () => {};
@@ -28,7 +29,7 @@ export default class ApiModule {
          
          if (!data) {
             try {
-               data = await queue.add(() => APIModule.get(options), doCancel => cancel = doCancel);
+               data = await queue.add(() => APIModule.get(options), doCancel => cancel = doCancel, this.api);
             } catch (error) {
                if (error.status === 429) {
                   queue.pause();
