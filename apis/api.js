@@ -1,5 +1,6 @@
 import { getModule } from '@vizality/webpack';
 import WaitQueue from '../modules/queue';
+import {logger} from '@vizality/util';
 
 const APIModule = getModule('get', 'getAPIBaseURL');
 let cache = {}, queue = new WaitQueue({delay: 2500});
@@ -16,43 +17,34 @@ export default class ApiModule {
    get api() {return '';}
    get settings() {return this.plugin?.settings;}
    get cache() {return cache[this.api];}
+   error(...message) {
+      logger.error({labels: ['user-details', this.api], message: message.join(' ')});
+   }
 
-   get(options, guildId, userId) {
-      let cancel = () => {};
-
-      const promise = new Promise(async resolve => {
-         if (!cache[this.api]) cache[this.api] = {[guildId]: {}};
-         if (!cache[this.api][guildId]) cache[this.api][guildId] = {};
-         let data;
-         const userFromCache = cache[this.api][guildId][userId];
-         if (userFromCache && userFromCache.fetch > Date.now() - 600000) data = userFromCache.data;  
-         
-         if (!data) {
-            try {
-               data = await queue.add(() => APIModule.get(options), doCancel => cancel = doCancel, this.api);
-            } catch (error) {
+   get(options, guildId, userId, event) {
+      if (!cache[this.api]) cache[this.api] = {[guildId]: {}};
+      if (!cache[this.api][guildId]) cache[this.api][guildId] = {};
+      let data;
+      const userFromCache = cache[this.api][guildId][userId];
+      if (userFromCache && userFromCache.fetch > Date.now() - 600000) data = userFromCache.data;  
+      
+      if (!data) {
+         queue.add(() => APIModule.get(options), this.api, event);
+         event
+            .on('done', data => {
+               cache[this.api][guildId][userId] = {
+                  data: data,
+                  fetch: Date.now()
+               };
+            })
+            .on('error', error => {
                if (error.status === 429) {
                   queue.pause();
                   setTimeout(queue.continue, (error.body?.retry_after ?? 5) * 1000);
-               }
-               resolve(data = null);
-            }
-            if(!data?.body) return resolve(data = null);
+               } 
+            });
 
-            cache[this.api][guildId][userId] = {
-               data: data,
-               fetch: Date.now()
-            };
-         }
-
-         return resolve(data);
-      });
-      
-      Object.defineProperty(promise, 'cancel', {
-         get() {return cancel;}
-      });
-      
-      return promise;
+      } else event.reply('done', data);
    }
 
    parseZeroPadding(zeroable) {

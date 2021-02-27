@@ -6,6 +6,8 @@ import Badge from '../components/badge';
 import defaultconnections from '../data/defaultConnections';
 import ApiModule from './api';
 import Circle from '../components/blankslates/circle';
+import Error from '../components/icons/error';
+import Eventhandler from '../modules/eventhandler';
 
 export default class Userconnections extends ApiModule {
    get api() {return this.constructor.name;}
@@ -27,20 +29,30 @@ export default class Userconnections extends ApiModule {
    task(userId) {
       return React.memo(({titleClassName}) => {
          if (!this.shownConnectionsAsArray.length) return null;
-         const [connections, setconnections] = useState(null);
-         
-         useEffect(() => {
-            const promise = this.get({
-               url: constants.Endpoints.USER_PROFILE(userId)
-            }, userId, userId);
-            promise.then(data => {
-               if (!data || !Array.isArray(data.body?.connected_accounts)) return setconnections([]);
-               const shown = this.shownConnections;
-               const connections = data.body.connected_accounts.filter(e => shown[e.type]);
-               setconnections(connections);
-            });
+         const [connections, setConnections] = useState(null);
+         const [message, setMessage] = useState('');
 
-            return () => promise.cancel();
+         useEffect(() => {
+            const event = new Eventhandler(); 
+            event
+               .on('done', data => {
+                  if (!data || !Array.isArray(data.body?.connected_accounts)) return setConnections([]);
+                  const shown = this.shownConnections;
+                  const connections = data.body.connected_accounts.filter(e => shown[e.type]);
+                  setConnections(connections);
+               })
+               .on('error', error => {
+                  let text = 'Failed to fetch data.';
+                  if (error.body?.code === 50001) text = 'Cannot access Profile';
+                  setMessage(text + '.');
+                  this.error(text + ' from "' + userId + '"');
+               });
+            
+            this.get({
+               url: constants.Endpoints.USER_PROFILE(userId)
+            }, userId, userId, event);
+
+            return () => event.cancel();
          }, [true]);
 
          return <div className="ud-connectionsBody">
@@ -48,7 +60,9 @@ export default class Userconnections extends ApiModule {
             {
                Array.isArray(connections)
                ? connections.length ? <div className="ud-connections">{connections.map(badge => <Badge {...badge} />)}</div> : null
-               : <Tooltip text="Loading Connections...">{this.shownConnectionsAsArray.map(() => <Circle className="loading" />)}</Tooltip>
+               : message
+                  ? <Tooltip text={message}><Error className="ud-errorIcon" /></Tooltip>
+                  : <Tooltip text="Loading Connections...">{this.shownConnectionsAsArray.map(() => <Circle className="loading" />)}</Tooltip>
             }
          </div>;
       });

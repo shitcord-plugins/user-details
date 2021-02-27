@@ -59,6 +59,16 @@
       flex-wrap: wrap;
       margin-bottom: 8px;
    }
+
+   .ud-errorIcon {
+      width: 35px;
+      height: 35px;
+      margin-top: -5px;
+  }
+}
+
+.ud-errorIcon {
+   fill: #f04747 !important;
 }
 
 .ud-connections img {

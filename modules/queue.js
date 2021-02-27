@@ -7,27 +7,27 @@ export default class WaitQueue {
       if (this.autostart && functions.length) this.next(); 
    }
 
-   add(callback, onCancel, caller) {
-      return new Promise(resolve => {
-         const func = async () => {
-            resolve(await callback());
-         }
-         func.__caller = caller;
-         this.functions.push(func);
-         onCancel(() => {
-            const index = this.functions.indexOf(func);
-            if (index == -1) return;
-            this.functions.splice(index, 1);
-         });
-
-         if (this.autostart && !this.running) this.next();
+   add(callback, caller, event) {
+      const func = async () => {
+         event.reply('done', await callback());
+      }
+      func.__caller = caller;
+      func.__error = error => {
+         event.reply('error', error);
+      }
+      this.functions.push(func);
+      event.on('cancel', () => {
+         const index = this.functions.indexOf(func);
+         if (index == -1) return;
+         this.functions.splice(index, 1);
       });
+
+      if (this.autostart && !this.running) this.next();
    }
 
    next = () => {
       if (!this.functions.length || this.paused) return this.running = false;
       this.running = true;
-      
       this._runCallback(this.functions.shift()).then(() => setTimeout(this.next, this.delay));
    }
 
@@ -46,6 +46,7 @@ export default class WaitQueue {
          await callback();
       } catch (error) {
          console.error(`Could not run callback for "${callback.__caller}":`, '\n',  error);
+         callback.__error(error);
       }
    }
 }
