@@ -81,7 +81,7 @@ export default class ApiModule {
          .replace(/\$weeksago/g, Math.floor(daysago / 7))
          .replace(/\$yearsago/g, Math.floor(this.yearsAgo(today, date)))
          .replace(/\$year/g, date.getFullYear())
-         .replace(/\$hour/g, this.parseZeroPadding(date.getHours() % 12))
+         .replace(/\$hour/g, this.parseZeroPadding(hour12 ? date.getHours() % 12 : date.getHours()))
          .replace(/\$minute/g, this.parseZeroPadding(date.getMinutes()))
          .replace(/\$second/g, this.parseZeroPadding(date.getSeconds()));
    }
